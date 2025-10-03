@@ -1,0 +1,5 @@
+spring:
+  jwt:
+    secret: "a-string-secret-256-bits-long-for-dev"
+server:
+  port: 8082
