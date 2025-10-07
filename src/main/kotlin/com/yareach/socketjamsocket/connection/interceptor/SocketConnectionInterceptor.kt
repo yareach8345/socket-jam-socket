@@ -1,4 +1,4 @@
-package com.yareach.socketjamsocket.config.socket
+package com.yareach.socketjamsocket.connection.interceptor
 
 import com.yareach.socketjamcommon.security.domain.TokenDecoder
 import com.yareach.socketjamsocket.connection.service.SocketConnectionService
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.server.ResponseStatusException
 
 @Component
-class TestChannelInterceptor(
+class SocketConnectionInterceptor(
     private val socketConnectionService: SocketConnectionService,
     private val tokenDecoder: TokenDecoder,
 ): ChannelInterceptor {
@@ -32,12 +32,18 @@ class TestChannelInterceptor(
                 )
             println(authHeader)
 
-            val sessionId = accessor.sessionId ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "sessionId is null")
+            val sessionId = accessor.sessionId ?: throw ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "sessionId is null"
+            )
             val userIdentify = tokenDecoder.getUserIdentify(authHeader)
 
             socketConnectionService.processConnect(sessionId, userIdentify)
         } else if (type == SimpMessageType.DISCONNECT) {
-            val sessionId = accessor.sessionId ?: throw ResponseStatusException(HttpStatus.FORBIDDEN, "sessionId is null")
+            val sessionId = accessor.sessionId ?: throw ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "sessionId is null"
+            )
 
             socketConnectionService.processDisconnect(sessionId)
         }
