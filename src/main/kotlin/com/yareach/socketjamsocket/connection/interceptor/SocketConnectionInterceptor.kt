@@ -30,7 +30,6 @@ class SocketConnectionInterceptor(
                     HttpStatus.UNAUTHORIZED,
                     "need auth header"
                 )
-            println(authHeader)
 
             val sessionId = accessor.sessionId ?: throw ResponseStatusException(
                 HttpStatus.FORBIDDEN,
