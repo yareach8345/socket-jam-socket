@@ -1,5 +1,19 @@
-spring:
-  jwt:
-    secret: "a-string-secret-256-bits-long-for-dev"
 server:
   port: 8082
+
+spring:
+  application:
+    name: socket-jam-socket
+  data:
+    mongodb:
+      uri: ${DB_URL}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      database: ${DB_DBNAME}
+  jwt:
+    public-key-file: keys/public.pem
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false

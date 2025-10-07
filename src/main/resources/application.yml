@@ -5,11 +5,8 @@ spring:
   application:
     name: socket-jam-socket
   data:
-    mongodb:
-      uri: ${DB_URL}
-      username: ${DB_USERNAME}
-      password: ${DB_PASSWORD}
-      database: ${DB_DBNAME}
+    redis:
+      password: ${REDIS_PASSWORD}
   jwt:
     public-key-file: keys/public.pem
 

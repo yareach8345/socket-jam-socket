@@ -41,3 +41,6 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### 테스트용 docker compose 파일 ###
+docker-compose.yml
