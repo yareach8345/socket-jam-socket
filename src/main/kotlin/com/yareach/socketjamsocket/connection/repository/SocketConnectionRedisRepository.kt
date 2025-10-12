@@ -5,4 +5,4 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface SocketConnectionRedisRepository : CrudRepository<SocketConnectionEntity, String> {}
+interface SocketConnectionRedisRepository : CrudRepository<SocketConnectionEntity, String>

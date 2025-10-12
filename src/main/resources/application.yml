@@ -6,6 +6,8 @@ spring:
     name: socket-jam-socket
   data:
     redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
       password: ${REDIS_PASSWORD}
   jwt:
     public-key-file: keys/public.pem

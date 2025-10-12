@@ -1,10 +1,12 @@
 package com.yareach.socketjamsocket.connection.interceptor
 
 import com.yareach.socketjamcommon.security.domain.TokenDecoder
+import com.yareach.socketjamsocket.common.extensions.throwErrorMessage
 import com.yareach.socketjamsocket.connection.service.SocketConnectionService
 import org.springframework.http.HttpStatus
 import org.springframework.messaging.Message
 import org.springframework.messaging.MessageChannel
+import org.springframework.messaging.MessageDeliveryException
 import org.springframework.messaging.simp.SimpMessageType
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor
 import org.springframework.messaging.support.ChannelInterceptor
@@ -18,6 +20,7 @@ class SocketConnectionInterceptor(
     private val tokenDecoder: TokenDecoder,
 ): ChannelInterceptor {
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*>? {
+
         val accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor::class.java) ?: return null
         val type = accessor.messageType
 
@@ -26,23 +29,17 @@ class SocketConnectionInterceptor(
                 ?.get(0)
                 ?.takeIf { it.startsWith("Bearer ") }
                 ?.let { it.split(" ")[1] }
-                ?: throw ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "need auth header"
-                )
+                ?: throwErrorMessage(ResponseStatusException(HttpStatus.UNAUTHORIZED, "Auth header is required for connect"))
 
-            val sessionId = accessor.sessionId ?: throw ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "sessionId is null"
-            )
+            val sessionId = accessor.sessionId
+                ?: throwErrorMessage("Unknown Error.. can't get session id from accessor [when connect]")
+
             val userIdentify = tokenDecoder.getUserIdentify(authHeader)
 
             socketConnectionService.processConnect(sessionId, userIdentify)
         } else if (type == SimpMessageType.DISCONNECT) {
-            val sessionId = accessor.sessionId ?: throw ResponseStatusException(
-                HttpStatus.FORBIDDEN,
-                "sessionId is null"
-            )
+            val sessionId = accessor.sessionId
+                ?: throwErrorMessage("Unknown Error.. can't get session id from accessor [when disconnect]")
 
             socketConnectionService.processDisconnect(sessionId)
         }

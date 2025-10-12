@@ -1,5 +1,7 @@
 package com.yareach.socketjamsocket.connection.repository
 
+import com.yareach.socketjamcommon.user.model.UserIdentify
+import com.yareach.socketjamsocket.connection.entity.SocketConnectionEntity
 import com.yareach.socketjamsocket.connection.model.SocketConnection
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
@@ -11,15 +13,18 @@ class SocketConnectionRepositoryImpl(
     private val repository: SocketConnectionRedisRepository
 ): SocketConnectionRepository {
     override fun save(socketConnection: SocketConnection): SocketConnection {
-        val entity = socketConnection.toEntity()
+        val entity = SocketConnectionEntity.fromModel(socketConnection)
         val result = repository.save(entity)
-        return SocketConnection.fromEntity(result)
+        return result.toModel()
+    }
+
+    override fun exists(sessionId: String): Boolean {
+        return repository.existsById(sessionId)
     }
 
     override fun findById(sessionId: String): SocketConnection? {
         val findResult = repository.findByIdOrNull(sessionId)
-        return findResult
-            ?.let { SocketConnection.fromEntity(it) }
+        return findResult?.toModel()
     }
 
     override fun deleteById(sessionId: String) {
