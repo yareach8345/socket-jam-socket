@@ -1,10 +1,10 @@
 package com.yareach.socketjamsocket.connection.model
 
-import com.yareach.socketjamcommon.user.model.UserIdentify
+import java.util.UUID
 
 data class SocketConnection(
     val sessionId: String,
-    val userId: UserIdentify,
+    val userId: UUID,
     val roomId: String
 ) {
 }

@@ -1,4 +1,4 @@
-package com.yareach.socketjamsocket.connection.interceptor
+package com.yareach.socketjamsocket.external.api.room.dto
 
 data class UserJoinInfoDto (
     val userId: String,

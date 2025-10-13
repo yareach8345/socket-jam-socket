@@ -20,7 +20,6 @@ class SocketConnectionInterceptor(
     private val tokenDecoder: TokenDecoder,
 ): ChannelInterceptor {
     override fun preSend(message: Message<*>, channel: MessageChannel): Message<*>? {
-
         val accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor::class.java) ?: return null
         val type = accessor.messageType
 
@@ -34,9 +33,13 @@ class SocketConnectionInterceptor(
             val sessionId = accessor.sessionId
                 ?: throwErrorMessage("Unknown Error.. can't get session id from accessor [when connect]")
 
-            val userIdentify = tokenDecoder.getUserIdentify(authHeader)
+            val userId = tokenDecoder.getUserId(authHeader)
 
-            socketConnectionService.processConnect(sessionId, userIdentify)
+            try {
+                socketConnectionService.processConnect(sessionId, userId)
+            } catch (e: Exception) {
+                throwErrorMessage(e)
+            }
         } else if (type == SimpMessageType.DISCONNECT) {
             val sessionId = accessor.sessionId
                 ?: throwErrorMessage("Unknown Error.. can't get session id from accessor [when disconnect]")

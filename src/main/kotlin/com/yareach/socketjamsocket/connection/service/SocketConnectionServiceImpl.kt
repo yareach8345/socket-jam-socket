@@ -1,43 +1,51 @@
 package com.yareach.socketjamsocket.connection.service
 
 import com.yareach.socketjamcommon.service.enum.ServiceHost
-import com.yareach.socketjamcommon.user.model.UserIdentify
-import com.yareach.socketjamsocket.common.extensions.throwErrorMessage
-import com.yareach.socketjamsocket.connection.interceptor.UserJoinInfoDto
+import com.yareach.socketjamcommon.types.UserId
+import com.yareach.socketjamsocket.connection.event.SocketEventPublisher
+import com.yareach.socketjamsocket.connection.event.message.send.SocketConnectEvent
+import com.yareach.socketjamsocket.connection.event.message.send.SocketDisconnectEvent
 import com.yareach.socketjamsocket.connection.model.SocketConnection
 import com.yareach.socketjamsocket.connection.repository.SocketConnectionRepository
+import com.yareach.socketjamsocket.external.api.room.RoomApiClient
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
 import org.springframework.web.server.ResponseStatusException
 
 @Service
 class SocketConnectionServiceImpl(
     private val socketConnectionRepository: SocketConnectionRepository,
-    private val restTemplate: RestTemplate
+    private val socketEventPublisher: SocketEventPublisher,
+    private val roomApiClient: RoomApiClient
 ): SocketConnectionService {
     override fun processConnect(
         sessionId: String,
-        userId: UserIdentify
+        userId: UserId
     ): SocketConnection {
-        val joinInfo = restTemplate.getForObject(
-            ServiceHost.ROOM.withPath("/internal/v1/users/${userId.userId}/joinInfo"),
-            UserJoinInfoDto::class.java
-        ) ?: throw RuntimeException("User joinInfo not found")
+        val joinInfo = roomApiClient.getUserJoinInfo(userId)
 
-        val roomId = joinInfo.roomId ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        val roomId = joinInfo.roomId ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "roomId in userJoinInfo is null")
 
         val socketConnection = SocketConnection(
             sessionId = sessionId,
             roomId = roomId,
             userId = userId,
         )
-        return socketConnectionRepository.save(socketConnection)
+        val result = socketConnectionRepository.save(socketConnection)
+
+        val event = SocketConnectEvent(result)
+        socketEventPublisher.publishSocketConnectEvent(event)
+
+        return result
     }
 
     override fun processDisconnect(sessionId: String) {
-        if(socketConnectionRepository.exists(sessionId)) {
+        val socketConnection = socketConnectionRepository.findById(sessionId)
+        if(socketConnection != null) {
             socketConnectionRepository.deleteById(sessionId)
+
+            val event = SocketDisconnectEvent(socketConnection)
+            socketEventPublisher.publishSocketDisconnectEvent(event)
         }
     }
 }

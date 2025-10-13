@@ -1,6 +1,5 @@
 package com.yareach.socketjamsocket.connection.interceptor
 
-import ch.qos.logback.core.status.Status
 import com.yareach.socketjamsocket.common.extensions.throwErrorMessage
 import com.yareach.socketjamsocket.connection.repository.SocketConnectionRepository
 import org.springframework.http.HttpStatus

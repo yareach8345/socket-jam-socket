@@ -1,15 +1,15 @@
 package com.yareach.socketjamsocket.connection.entity
 
-import com.yareach.socketjamcommon.user.model.UserIdentify
 import com.yareach.socketjamsocket.connection.model.SocketConnection
 import org.springframework.data.annotation.Id
 import org.springframework.data.redis.core.RedisHash
+import java.util.UUID
 
 @RedisHash("socket-connection", timeToLive = 120)
 class SocketConnectionEntity (
     @Id
     val sessionId: String,
-    val userId: UserIdentify,
+    val userId: UUID,
     val roomId: String
 ) {
     companion object {

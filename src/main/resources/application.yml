@@ -11,6 +11,17 @@ spring:
       password: ${REDIS_PASSWORD}
   jwt:
     public-key-file: keys/public.pem
+  cloud:
+    stream:
+      bindings:
+        socketConnectedEvent-out-0:
+          destination: socket-jam.socket.connected
+        socketDisconnectedEvent-out-0:
+          destination: socket-jam.socket.disconnected
+      kafka:
+        binder:
+          brokers: localhost:29092
+
 
 eureka:
   client:
